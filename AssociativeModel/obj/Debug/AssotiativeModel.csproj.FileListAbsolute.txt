@@ -1,0 +1,6 @@
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\bin\Debug\AssotiativeModel.exe
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\bin\Debug\AssotiativeModel.pdb
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\obj\Debug\AssotiativeModel.csprojAssemblyReference.cache
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\obj\Debug\AssotiativeModel.csproj.CoreCompileInputs.cache
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\obj\Debug\AssotiativeModel.exe
+D:\Users\widau\RiderProjects\AssotiativeModel\AssotiativeModel\obj\Debug\AssotiativeModel.pdb
