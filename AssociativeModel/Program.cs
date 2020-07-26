@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace AssociativeModel
 {
-    internal class Program
+    internal static class Program
     {
         public static void Main(string[] args)
         {
@@ -12,7 +11,6 @@ namespace AssociativeModel
             var currentNode = net.Root;
             var selectedIndex = 0;
             var active = true;
-            var history = new Stack<string>();
             
             while (active)
             {
@@ -20,7 +18,7 @@ namespace AssociativeModel
                 Console.WriteLine($"--- {currentNode} ---\n");
                 
                 var i = 0;
-                var dependencies = net.GetDependencies(currentNode);
+                var dependencies = net.GetAssociations(currentNode);
                 foreach (var node in dependencies)
                 {
                     Console.ForegroundColor = i == selectedIndex ? ConsoleColor.White : ConsoleColor.Gray;
@@ -48,16 +46,25 @@ namespace AssociativeModel
                     
                     case ConsoleKey.A:
                         Console.Write("Name: ");
-                        net.AddDependency(currentNode, Console.ReadLine());
+                        var node = Console.ReadLine();
+                        
+                        net.Register(node);
+                        
+                        if (currentNode != net.Root)
+                            net.AddAssociation(currentNode, node);
                         break;
                     
                     case ConsoleKey.Delete:
                         if (!dependencies.Any()) break;
+
+                        var removed = dependencies[selectedIndex];
                         
-                        Console.Write($"Remove node {dependencies[selectedIndex]}? [Y/n]");
+                        Console.Write($"Remove association with {removed}? [Y/n]");
                         
                         if (Console.ReadKey().Key != ConsoleKey.N) 
-                            net.RemoveDependency(currentNode, dependencies[selectedIndex]);
+                            net.RemoveAssociation(currentNode, dependencies[selectedIndex]);
+
+                        if (removed == net.Root) currentNode = net.Root;
                         break;
                 }
             }

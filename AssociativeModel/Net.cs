@@ -1,63 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AssociativeModel
 {
     public class Net<T>
     {
-        private readonly Dictionary<T, List<T>> _dependencies = new Dictionary<T, List<T>>();
+        protected readonly Dictionary<T, List<T>> Associations = new Dictionary<T, List<T>>();
         
         public T Root { get; }
-
+        
         public Net(T root)
         {
             Root = root;
-            _dependencies[root] = new List<T>();
-        }
-
-        public void AddDependency(T first, T second)
-        {
-            var (parent, child) = _dependencies.ContainsKey(first) ? (first, second) : (second, first);
-            
-            if (!_dependencies.ContainsKey(parent))
-            {
-                throw new ArgumentException("Net must contain parent node.");
-            }
-
-            if (!_dependencies.ContainsKey(child))
-            {
-                _dependencies[child] = new List<T>();
-            }
-
-            if (!_dependencies[parent].Contains(child))
-            {
-                _dependencies[parent].Add(child);
-            }
-
-            if (!_dependencies[child].Contains(parent))
-            {
-                _dependencies[child].Add(parent);
-            }
+            Associations[Root] = new List<T>();
         }
         
-        public T[] GetDependencies(T node)
+        
+
+        public void Register(T node)
         {
-            return _dependencies[node].ToArray();
+            Associations[node] = new List<T> {Root};
+            Associations[Root].Add(node);
         }
 
-        public void RemoveDependency(T first, T second)
+        public void Unregister(T node)
         {
-            if (!_dependencies.ContainsKey(first) || !_dependencies.ContainsKey(second))
+            foreach (var a in Associations[node])
             {
-                throw new ArgumentException("Net must contain both nodes");
+                Associations[a].Remove(node);
             }
 
-            _dependencies[first].Remove(second);
-            _dependencies[second].Remove(first);
+            Associations.Remove(node);
+        }
 
-            if (!_dependencies[first].Any() && !first.Equals(Root)) _dependencies.Remove(first);
-            if (!_dependencies[second].Any() && !second.Equals(Root)) _dependencies.Remove(second);
+        public void AddAssociation(T first, T second)
+        {
+            Debug.Assert(!first.Equals(second), "first must not be equal second");
+            Debug.Assert(Associations.ContainsKey(first), "first must be registered");
+            Debug.Assert(Associations.ContainsKey(second), "second must be registered");
+            
+            Associations[first].Add(second);
+            Associations[second].Add(first);
+        }
+
+        public bool RemoveAssociation(T first, T second)
+        {
+            Debug.Assert(Associations.ContainsKey(first), "first must be registered");
+            Debug.Assert(Associations.ContainsKey(second), "second must be registered");
+            Debug.Assert(!first.Equals(second), "first must not be equal second");
+
+            if (first.Equals(Root))
+            {
+                Unregister(second);
+                return true;
+            }
+
+            if (second.Equals(Root))
+            {
+                Unregister(first);
+                return true;
+            }
+            
+            if (!Associations[first].Contains(second)) return false;
+
+            Associations[first].Remove(second);
+            Associations[second].Remove(first);
+
+            return true;
+        }
+
+        public T[] GetAssociations(T node)
+        {
+            Debug.Assert(Associations.ContainsKey(node), "node must be registered");
+
+            return Associations[node].ToArray();
         }
     }
 }
