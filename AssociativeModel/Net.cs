@@ -16,11 +16,15 @@ namespace AssociativeModel
             Root = root;
             Associations[Root] = new List<T>();
         }
-        
-        
 
+
+
+        public bool Contains(T node) => Associations.ContainsKey(node);
+        
         public void Register(T node)
         {
+            Debug.Assert(!Associations.ContainsKey(node), "this node has already been registered");
+            
             Associations[node] = new List<T> {Root};
             Associations[Root].Add(node);
         }
