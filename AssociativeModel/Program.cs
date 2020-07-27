@@ -7,7 +7,8 @@ namespace AssociativeModel
     {
         public static void Main(string[] args)
         {
-            var explorer = new Explorer(new FileSystem());
+            Console.Write("Working directory: ");
+            var explorer = new Explorer(new FileSystem(Console.ReadLine()));
 
             explorer.Start();
         }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace AssociativeModel
 {
-    public class Net<T>
+    public class Net<T> : IEnumerable<T>
     {
         protected readonly Dictionary<T, List<T>> Associations = new Dictionary<T, List<T>>();
         
@@ -21,12 +22,14 @@ namespace AssociativeModel
 
         public bool Contains(T node) => Associations.ContainsKey(node);
         
-        public void Register(T node)
+        public T Register(T node)
         {
             Debug.Assert(!Associations.ContainsKey(node), "this node has already been registered");
             
             Associations[node] = new List<T> {Root};
             Associations[Root].Add(node);
+
+            return node;
         }
 
         public void Unregister(T node)
@@ -81,5 +84,21 @@ namespace AssociativeModel
 
             return Associations[node].ToArray();
         }
+        
+        
+        
+        #region IEnumerable<T> implementation
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return Associations.Keys.GetEnumerator();
+        }
+        
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
     }
 }
