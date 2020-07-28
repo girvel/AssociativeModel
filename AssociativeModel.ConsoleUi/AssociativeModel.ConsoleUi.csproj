@@ -4,14 +4,14 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{1D2BC374-8226-45E6-BFEE-4B5C6002B616}</ProjectGuid>
-        <OutputType>Exe</OutputType>
+        <ProjectGuid>{C04D1E40-96CD-4DC3-A376-4A363A8F978C}</ProjectGuid>
+        <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>AssociativeModel</RootNamespace>
-        <AssemblyName>AssociativeModel</AssemblyName>
+        <RootNamespace>AssociativeModel.ConsoleUi</RootNamespace>
+        <AssemblyName>AssociativeModel.ConsoleUi</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>8</LangVersion>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,18 +39,11 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="NetFile.cs" />
-        <Compile Include="FileSystem.cs" />
-        <Compile Include="Net.cs" />
-        <Compile Include="Explorer.cs" />
-        <Compile Include="Program.cs" />
+        <Compile Include="ListSelector.cs" />
+        <Compile Include="CollectionSelectorHelper.cs" />
+        <Compile Include="Tools.cs" />
+        <Compile Include="XConsole.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\AssociativeModel.ConsoleUi\AssociativeModel.ConsoleUi.csproj">
-        <Project>{c04d1e40-96cd-4dc3-a376-4a363a8f978c}</Project>
-        <Name>AssociativeModel.ConsoleUi</Name>
-      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

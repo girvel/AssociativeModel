@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace AssociativeModel
 {
+    [Serializable]
     public class FileSystem
     {
         public Net<NetFile> Net;
@@ -11,6 +12,11 @@ namespace AssociativeModel
         public NetFile CurrentFile;
         public string WorkingDirectory;
 
+        public FileSystem()
+        {
+            
+        }
+        
         public FileSystem(string workingDirectory)
         {
             Net = new Net<NetFile>(new NetFile("<root>"));
@@ -54,18 +60,29 @@ namespace AssociativeModel
 
         public NetFile GetByPath(string path)
         {
+            if (path == "") return CurrentFile;
+            
+            if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
+            
             var splitPath = path.Split('/').SelectMany(e => e.Split('\\')).ToArray();
 
-            return splitPath.Skip(1).Aggregate(
-                splitPath[0] switch
-                {
-                    "~" => Home,
-                    "" => Net.Root,
-                    _ => CurrentFile,
-                },
-                (current, name) => Net
-                    .GetAssociations(current)
-                    .First(f => f.Name == name));
+            // try
+            // {
+                return splitPath.Skip(1).Aggregate(
+                    splitPath[0] switch
+                    {
+                        "~" => Home,
+                        "" => Net.Root,
+                        _ => Net.GetAssociations(CurrentFile).First(f => f.Name == splitPath[0]),
+                    },
+                    (current, name) => Net
+                        .GetAssociations(current)
+                        .First(f => f.Name == name));
+            // }
+            // catch (InvalidOperationException ex)
+            // {
+            //     throw new ArgumentException("path is incorrect", ex);
+            // }
         }
     }
 }

@@ -4,3 +4,6 @@ D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\obj\Debug\Associa
 D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\obj\Debug\AssociativeModel.csproj.CoreCompileInputs.cache
 D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\obj\Debug\AssociativeModel.exe
 D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\obj\Debug\AssociativeModel.pdb
+D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\obj\Debug\AssociativeModel.csproj.CopyComplete
+D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\bin\Debug\AssociativeModel.ConsoleUi.dll
+D:\Users\widau\RiderProjects\AssociativeModel\AssociativeModel\bin\Debug\AssociativeModel.ConsoleUi.pdb

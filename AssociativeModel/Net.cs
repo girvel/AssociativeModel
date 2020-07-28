@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace AssociativeModel
 {
+    [Serializable]
     public class Net<T> : IEnumerable<T>
     {
         protected readonly Dictionary<T, List<T>> Associations = new Dictionary<T, List<T>>();
@@ -42,14 +43,17 @@ namespace AssociativeModel
             Associations.Remove(node);
         }
 
-        public void AddAssociation(T first, T second)
+        public bool AddAssociation(T first, T second)
         {
             Debug.Assert(!first.Equals(second), "first must not be equal second");
             Debug.Assert(Associations.ContainsKey(first), "first must be registered");
             Debug.Assert(Associations.ContainsKey(second), "second must be registered");
+            if (Associations[first].Contains(second)) return false;
             
             Associations[first].Add(second);
             Associations[second].Add(first);
+
+            return true;
         }
 
         public bool RemoveAssociation(T first, T second)

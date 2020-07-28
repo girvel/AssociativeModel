@@ -1,5 +1,8 @@
-﻿namespace AssociativeModel
+﻿using System;
+
+namespace AssociativeModel
 {
+    [Serializable]
     public class NetFile
     {
         public readonly string Name;
