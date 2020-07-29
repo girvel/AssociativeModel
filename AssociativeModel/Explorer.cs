@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using AssociativeModel.ConsoleUi;
-using OConsole = System.Console;
 
 namespace AssociativeModel
 {
@@ -12,8 +11,8 @@ namespace AssociativeModel
         public FileSystem FileSystem { get; }
         
         public ListSelector<NetFile> Selector { get; private set; }
-
-        protected readonly Dictionary<ConsoleKey, Action> UiActions;
+        
+        protected readonly (KeyPattern[] patterns, Action action)[] UiActions;
 
 
 
@@ -23,55 +22,7 @@ namespace AssociativeModel
             FileSystem.CurrentFile = FileSystem.Home ?? FileSystem.Net.Root;
             Selector = new ListSelector<NetFile>();
 
-            UiActions = new Dictionary<ConsoleKey, Action>
-            {
-                [ConsoleKey.UpArrow] = () => Selector.StepBack(),
-                [ConsoleKey.DownArrow] = () => Selector.StepForward(),
-                [ConsoleKey.Enter] = () =>
-                {
-                    if (!FileSystem.Net.GetAssociations(FileSystem.CurrentFile).Any()) return;
-                    FileSystem.CurrentFile = Selector.Get();
-                    Selector = FileSystem.Net.GetAssociations(FileSystem.CurrentFile).ToSelector();
-                },
-                [ConsoleKey.A] = () =>
-                {
-                    var node = FileSystem.GetByPath(
-                        XConsole.ReadLine(
-                            "Path: ",
-                            inp =>
-                            {
-                                var fullPath = Tools.FullPathToDirectory(inp);
-                                return FileSystem.Net.GetAssociations(
-                                        FileSystem.GetByPath(fullPath))
-                                    .Select(a => fullPath + a.Name)
-                                    .OrderBy(s => s)
-                                    .ToArray();
-                            }));
-
-                    if (FileSystem.CurrentFile != FileSystem.Net.Root)
-                        FileSystem.Net.AddAssociation(FileSystem.CurrentFile, node);
-                },
-                [ConsoleKey.Delete] = () =>
-                {
-                    if (!Selector.List.Any()) return;
-
-                    var removed = Selector.Get();
-
-                    OConsole.Write($"Remove association with {removed}? [Y/n]");
-
-                    if (OConsole.ReadKey().Key != ConsoleKey.N)
-                        FileSystem.Net.RemoveAssociation(
-                            FileSystem.CurrentFile,
-                            Selector.Get());
-
-                    if (removed == FileSystem.Net.Root) FileSystem.CurrentFile = FileSystem.Net.Root;
-                },
-                [ConsoleKey.E] = () =>
-                {
-                    if (FileSystem.CurrentFile.FullPath != null)
-                        Process.Start(FileSystem.CurrentFile.FullPath);
-                },
-            };
+            UiActions = UiAction.ReflectMethods(this);
         }
 
 
@@ -80,45 +31,109 @@ namespace AssociativeModel
         {
             while (true)
             {
-                OConsole.Clear();
+                Console.Clear();
 
                 Selector.List = FileSystem.Net.GetAssociations(FileSystem.CurrentFile);
                 DisplayCurrentNode();
 
-                if (UiActions.TryGetValue(OConsole.ReadKey(true).Key, out var action)) action();
+                UiActions.Get(Console.ReadKey())?.Invoke();
             }
         }
 
         public void DisplayCurrentNode()
         {
-            OConsole.ForegroundColor = ConsoleColor.Black;
-            OConsole.BackgroundColor = ConsoleColor.Gray;
-            OConsole.WriteLine($" --- {FileSystem.CurrentFile} --- ");
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Gray;
+            Console.WriteLine($" --- {FileSystem.CurrentFile} --- ");
             
-            OConsole.ResetColor();
+            Console.ResetColor();
             
             var i = 0;
             foreach (var node in FileSystem.Net.GetAssociations(FileSystem.CurrentFile))
             {
                 if (node.FullPath == null)
                 {
-                    OConsole.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
                 }
                 else if (node.IsDirectory)
                 {
-                    OConsole.ForegroundColor = ConsoleColor.Gray;
+                    Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 else
                 {
-                    OConsole.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 
-                OConsole.Write(i == Selector.Index ? " > ": "   ");
-                OConsole.WriteLine(node);
+                Console.Write(i == Selector.Index ? " > ": "   ");
+                Console.WriteLine(node);
                 i++;
             }
             
-            OConsole.ResetColor();
+            Console.ResetColor();
+        }
+
+
+        
+        [UiAction(ConsoleKey.UpArrow)] 
+        [UiAction(ConsoleKey.W, ConsoleModifiers.Alt)]
+        private void CursorUp() => Selector.StepBack();
+
+        [UiAction(ConsoleKey.DownArrow)]
+        [UiAction(ConsoleKey.S, ConsoleModifiers.Alt)]
+        private void CursorDown() => Selector.StepForward();
+
+        [UiAction(ConsoleKey.Enter)]
+        [UiAction(ConsoleKey.D, ConsoleModifiers.Alt)]
+        private void OpenAssociations() 
+        {
+            if (!Selector.List.Any()) return;
+            
+            FileSystem.CurrentFile = Selector.Get();
+            Selector = FileSystem.Net.GetAssociations(FileSystem.CurrentFile).ToSelector();
+        }
+
+        [UiAction(ConsoleKey.A, ConsoleModifiers.Control)]
+        private void AddAssociations()
+        {
+            var node = FileSystem.GetByPath(
+                XConsole.ReadLine(
+                    "Path: ",
+                    inp =>
+                    {
+                        var fullPath = Tools.FullPathToDirectory(inp);
+                        return FileSystem.Net.GetAssociations(
+                                FileSystem.GetByPath(fullPath))
+                            .Select(a => fullPath + a.Name)
+                            .OrderBy(s => s)
+                            .ToArray();
+                    }));
+            
+            if (FileSystem.CurrentFile != FileSystem.Net.Root)
+                FileSystem.Net.AddAssociation(FileSystem.CurrentFile, node);
+        }
+
+        [UiAction(ConsoleKey.Delete)]
+        private void DeleteAssociation()
+        {
+            if (!Selector.List.Any()) return;
+            
+            var removed = Selector.Get();
+
+            Console.Write($"Remove association with {removed}? [Y/n]");
+
+            if (Console.ReadKey().Key != ConsoleKey.N)
+                FileSystem.Net.RemoveAssociation(
+                    FileSystem.CurrentFile,
+                    Selector.Get());
+
+            if (removed.Equals(FileSystem.Net.Root)) FileSystem.CurrentFile = FileSystem.Net.Root;
+        }
+
+        [UiAction(ConsoleKey.E, ConsoleModifiers.Control)]
+        private void Execute()
+        {
+            if (FileSystem.CurrentFile.FullPath != null)
+                Process.Start(FileSystem.CurrentFile.FullPath);
         }
     }
 }

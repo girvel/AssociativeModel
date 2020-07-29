@@ -39,9 +39,11 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="KeyPattern.cs" />
         <Compile Include="ListSelector.cs" />
         <Compile Include="CollectionSelectorHelper.cs" />
         <Compile Include="Tools.cs" />
+        <Compile Include="UiAction.cs" />
         <Compile Include="XConsole.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
